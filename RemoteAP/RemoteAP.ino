@@ -4,7 +4,7 @@
 
 const char *ssid = "JYPNODEMCU";
 const char *password = "123456789";
-const char htmlsource[] =
+const char indexsource[] =
 "<!DOCTYPE HTML>"
 "<html>"
 "<head>"
@@ -15,19 +15,43 @@ const char htmlsource[] =
 "</style>"
 "</head>"
 "<body>"
-"<h1>ETRI REMOTE SERVER !!!!!!!!</h1>"
+"<h1>ETRI REMOTEcon</h1>"
 "<FORM action=\"/\" method=\"post\">"
 "<P>"
-"<INPUT type=\"button\" name=\"tv\" value=\"1\">TV REMOTE<BR>"
-"<INPUT type=\"button\" name=\"air\" value=\"0\">AIRCON REMOTE<BR>"
+"<INPUT type=\"button\" onclick=\"location.href='/tvcon'\" value=\"TV\">"
+"<INPUT type=\"button\" onclick=\"location.href='/aircon'\" value=\"Aircon\">"
 "</P>"
 "</FORM>"
 "</body>"
 "</html>";
+
+const char tvsource[] =
+"<!DOCTYPE HTML>"
+"<html>"
+"<head>"
+"<meta name = \"viewport\" content = \"width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0\">"
+"<titleETRI REMOTE SERVER</title>"
+"<style>"
+"\"body { background-color: #808080; font-family: Arial, Helvetica, Sans-Serif; Color: #000000; }\""
+"</style>"
+"</head>"
+"<body>"
+"<h1>TV MODE ON</h1>"
+"<FORM action=\"/\" method=\"post\">"
+"<P>"
+"</P>"
+"</FORM>"
+"</body>"
+"</html>";
+
 ESP8266WebServer server(80);
 
-void handleRoot() {
-  server.send(200,"text/html", htmlsource);
+void indexpg() {
+  server.send(200,"text/html", indexsource);
+}
+
+void tvpg() {
+  server.send(200,"text/html", tvsource);
 }
 
 void setup() {
@@ -40,9 +64,10 @@ void setup() {
 	IPAddress myIP = WiFi.softAPIP();
 	Serial.print("AP IP address: ");
 	Serial.println(myIP);
-	server.on("/", handleRoot);
+	server.on("/", indexpg);
+  server.on("/tvcon", tvpg);
 	server.begin();
-	Serial.println("HTTP server started");
+	Serial.println("-----------ETRI REMOTE Server Started--------");
 }
 
 void loop() {
