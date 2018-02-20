@@ -43,7 +43,7 @@ void setup()
   display.setTextColor(BLACK);        //텍스트 색
   display.setCursor(0, 0);            //커서 좌표
   display.println("Loading....");
-  display.display();  
+  display.display();
 
   //ESP8266 잘 돌아가는지 준비테스트
   Serial.println("AT+RST");
@@ -79,7 +79,6 @@ void setup()
   if (Serial.find("park_device2"))
   {
     display.println("2.Device2");
-    Serial.println("AT+CWJAP=\"park_device2\",\"123456789\"");
   }
   else {
     display.println("2.Not find D2");
@@ -90,11 +89,62 @@ void setup()
   display.setTextColor(BLACK);        //텍스트 색
   display.display();                  //와이파이 내용 표시
 
+  // initialize row pins as INPUT_PULLUP
+  for (int i = 0; i < numRows; i++) {
+    pinMode(pinRows[i], INPUT_PULLUP);
+  }
+
+  // initialize column pins as OUTPUT
+  for (int j = 0; j < numCols; j++) {
+    pinMode(pinCols[j], OUTPUT);
+    digitalWrite(pinCols[j], HIGH);    // set initial output as HIGH
+  }
 }
+
 
 void loop()
 {
+  // Check input
+  for (int j = 0; j < numCols; j++) {
+    digitalWrite(pinCols[j], LOW);    // set as LOW to check button press
+    for (int i = 0; i < numRows; i++) {
+      if ( digitalRead(pinRows[i]) == LOW ) {   // check input. LOW is pressed
+        Serial.print("Pressed row=");
+        Serial.print(i);
+        Serial.print(", column=");
+        Serial.println(j);
+        if (i == 0 && j == 0) {
+          Serial.println("AT+CWJAP=\"park_device1\",\"123456789\"");
+          if (Serial.find("OK")) {
+            display.clearDisplay();             //디스플레이 지우기
+            display.setTextSize(1);             //텍스트 사이즈 조절
+            display.setTextColor(BLACK);        //텍스트 색
+            display.println("--Device1--");
+            display.println("1.ON");
+            display.println("2.OFF");
+            display.println("3.Back");
+            display.display();
+          }
+        }
 
+        else if (i == 0 && j == 1) {
+          Serial.println("AT+CWJAP=\"park_device2\",\"123456789\"");
+          if (Serial.find("OK")) {
+            display.clearDisplay();             //디스플레이 지우기
+            display.setTextSize(1);             //텍스트 사이즈 조절
+            display.setTextColor(BLACK);        //텍스트 색
+            display.println("--Device2--");
+            display.println("1.ON");
+            display.println("2.OFF");
+            display.println("3.Back");
+            display.display();
+          }
+        }
+      }
+    }
+    digitalWrite(pinCols[j], HIGH);    // set as default (HIGH)
+  }
+  delay(500);
 }
 
 
