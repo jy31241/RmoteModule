@@ -1,4 +1,4 @@
-#include <SPI.h>
+C#include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 #define PIN_BL 2   //백라이트 제어를 위한 핀연결

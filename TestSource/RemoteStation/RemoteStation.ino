@@ -7,22 +7,21 @@ SoftwareSerial dbgSerial(0, 1); // RX, TX
 void setup()
 {
   // Open serial communications and wait for port to open:
-  Serial.begin(57600);
+  Serial.begin(9600);
   Serial.setTimeout(5000);
   dbgSerial.begin(9600); //can't be faster than 19200 for softserial
   dbgSerial.println("ESP8266 Demo");
   
   //test if the module is ready
   Serial.println("AT+RST");
-
-  
+ 
   if(Serial.find("Ready"))
   {
-    dbgSerial.println("Module is ready");
+    Serial.println("Module is ready");
   }
   else
   {
-    dbgSerial.println("Module have no response.");
+    Serial.println("Module have no response.");
     while(1);
   }
   delay(1000);
