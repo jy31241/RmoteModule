@@ -70,7 +70,6 @@ void setup()
   if (Serial.find("park_device1"))
   {
     display.println("1.Device1");
-    Serial.println("AT+CWJAP=\"park_device1\",\"123456789\"");
   }
   else {
     display.println("1.Not find D1");
