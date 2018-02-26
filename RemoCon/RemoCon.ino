@@ -14,7 +14,7 @@ const int numCols = 3;
 int pinRows[numRows] = {8, 9, 10};
 int pinCols[numCols] = {11, 12, 13};
 
-SoftwareSerial esp(0, 1);
+SoftwareSerial esp(2, 3);
 void setup()
 {
   // Open serial communications and wait for port to open:
@@ -39,7 +39,9 @@ void setup()
   display.display();
 
   //ESP8266 잘 돌아가는지 준비테스트
-  Serial.println("AT+RST");
+  String c = "AT+RST";
+  Serial.println(c);
+  esp.println(c);
   delay(200);
 
   if (Serial.find("Ready"))

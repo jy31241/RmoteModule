@@ -1,0 +1,16 @@
+에어컨
+
+전원 : Decoded NEC: 616A817E (32 bits)
+온도 업 : Decoded NEC: 616A6996 (32 bits)
+온도 다운 : Decoded NEC: 616AE916 (32 bits)
+바람세기 : Decoded NEC: 616A9966 (32 bits)
+
+
+빔 프로젝터
+
+메뉴 : Decoded NEC: 1897629D (32 bits)
+상 : Decoded NEC: 18971DE2 (32 bits)
+하 : Decoded NEC: 18973DC2 (32 bits)
+좌 : Decoded NEC: 18977D82 (32 bits)
+우 : Decoded NEC: 18975DA2 (32 bits)
+엔터 : Decoded NEC: 1897E817 (32 bits)

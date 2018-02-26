@@ -1,6 +1,9 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <IRremoteESP8266.h>
+#include <IRsend.h>
+IRsend irsend;
 
 const char* ssid = "park_device1";
 const char* password = "123456789";
@@ -69,14 +72,18 @@ ESP8266WebServer server(80); //port 80
 
 void indexpg() {
   server.send(200, "text/html", indexsource);
+  irsend.sendNEC(0x189710EF, 32);
+  delay(500);
 }
 
 void de1() {
   server.send(200, "text/html", device1_1);
+  irsend.sendNEC(0x189710EF, 32);
 }
 
 void de2() {
   server.send(200, "text/html", device1_2);
+  irsend.sendNEC(0x189710EF, 32);
 }
 
 void setup() {
