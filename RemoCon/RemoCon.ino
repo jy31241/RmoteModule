@@ -20,7 +20,7 @@ void setup()
   // Open serial communications and wait for port to open:
   Serial.begin(115200);
   esp.begin(115200);
-  
+
   //백라이트를 ON 함, HIGH = Turn Backlight OFF, LOW = Turn Backlight ON
   pinMode(PIN_BL, OUTPUT);
   digitalWrite(PIN_BL, LOW);
@@ -123,6 +123,11 @@ void loop()
             display.println("2.OFF");
             display.println("3.Back");
             display.display();
+            if (i == 0 && j == 0) {
+              Serial.println("AT+CIPSTART=\"TCP\",\"192.168.4.1/bt1\",80");
+              delay(1000);
+              Serial.println("AT+CIPSEND=4"); //  set date length which will be sent, such as 4 bytes requese
+            }
           }
         }
 

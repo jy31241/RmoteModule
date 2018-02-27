@@ -13,4 +13,4 @@
 하 : Decoded NEC: 18973DC2 (32 bits)
 좌 : Decoded NEC: 18977D82 (32 bits)
 우 : Decoded NEC: 18975DA2 (32 bits)
-엔터 : Decoded NEC: 1897E817 (32 bits)
+엔터 : Decoded NEC: 1897E817 (32 bits)
