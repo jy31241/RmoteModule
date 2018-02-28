@@ -6,7 +6,7 @@
 IRsend irsend(4); // An IR LED is controlled by GPIO pin 4 (D2)
 
 const char* ssid = "park_device1";
-const char* password = "123456789";
+const char* password = "";
 const char indexsource[] =
   "<!DOCTYPE HTML>"
   "<html>"
@@ -133,7 +133,7 @@ const char wind[] =
   "</body>"
   "</html>";
 
-ESP8266WebServer server(80); //port 80
+ESP8266WebServer server(8080); //port 8080
 
 void indexpg() {
   server.send(200, "text/html", indexsource);
@@ -142,25 +142,21 @@ void indexpg() {
 void button1() {
   server.send(200, "text/html", power);
   irsend.sendNEC(0x616A817E, 32);
-  Serial.println("power");
 }
 
 void button2() {
   server.send(200, "text/html", temup);
   irsend.sendNEC(0x616A6996, 32);
-  Serial.println("temup");
 }
 
 void button3() {
   server.send(200, "text/html", temdown);
   irsend.sendNEC(0x616AE916, 32);
-  Serial.println("temdown");
 }
 
 void button4() {
   server.send(200, "text/html", wind);
   irsend.sendNEC(0x616A9966, 32);
-  Serial.println("windselect");
 }
 
 
@@ -179,6 +175,7 @@ void setup() {
   server.on("/bt2", button2);
   server.on("/bt3", button3);
   server.on("/bt4", button4);
+
   server.begin();
   Serial.println("-----------ETRI REMOTE Server Started--------");
 }

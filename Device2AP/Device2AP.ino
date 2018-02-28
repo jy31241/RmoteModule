@@ -6,7 +6,7 @@
 IRsend irsend(4); // An IR LED is controlled by GPIO pin 4 (D2)
 
 const char* ssid = "park_device2";
-const char* password = "123456789";
+const char* password = "";
 const char indexsource[] =
   "<!DOCTYPE HTML>"
   "<html>"
