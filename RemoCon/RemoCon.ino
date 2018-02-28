@@ -1,109 +1,82 @@
+#include "ESP8266WiFi.h"
+#include <Arduino.h>
 #include <SPI.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
-#include <SoftwareSerial.h>
+#include <Arduino.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266WiFiMulti.h>
+#include <ESP8266HTTPClient.h>
 #define PIN_BL 2  // LCD Backlight
-//SCLK, DIN, DC, CE, RST - Nokia 5110 lcd PIN
-Adafruit_PCD8544 display = Adafruit_PCD8544(3, 4, 5, 6, 7);
-
-//4x4 Button array(but only use 3way)
-const int numRows = 3;
-const int numCols = 3;
+#define USE_SERIAL Serial
+WiFiClient client;
+//4x4 Button array
+const int numRows = 4;
+const int numCols = 4;
 
 //4x4 Button Pin
-int pinRows[numRows] = {8, 9, 10};
-int pinCols[numCols] = {11, 12, 13};
+int pinRows[numRows] = {1, 3, 15, 0 };
+int pinCols[numCols] = {2, 9, 10, 16 };
 
-SoftwareSerial esp(2, 3);
-void setup()
-{
-  // Open serial communications and wait for port to open:
+Adafruit_PCD8544 display = Adafruit_PCD8544(14, 13, 12, 5, 4);
+ESP8266WiFiMulti WiFiMulti;
+
+void setup() {
   Serial.begin(115200);
-  esp.begin(115200);
-
-  //백라이트를 ON 함, HIGH = Turn Backlight OFF, LOW = Turn Backlight ON
   pinMode(PIN_BL, OUTPUT);
   digitalWrite(PIN_BL, LOW);
 
-  //디스플레이 초기화
-  display.begin();
-
-  //디스플레이 Contrast 조절 (값이 올라가면 진해짐)
-  display.setContrast(60);
-
-  display.clearDisplay();             //디스플레이 지우기
-  display.setTextSize(1);             //텍스트 사이즈 조절
-  display.setTextColor(BLACK);        //텍스트 색
-  display.setCursor(0, 0);            //커서 좌표
-  display.println("Loading....");
-  display.display();
-
-  //ESP8266 잘 돌아가는지 준비테스트
-  String c = "AT+RST";
-  Serial.println(c);
-  esp.println(c);
-  delay(200);
-
-  if (Serial.find("Ready"))
-  {
-    Serial.println("Module is ready");
-    display.println("ESP is Good");
-    display.display();
-  }
-  else
-  {
-    Serial.println("Module have no response.");
-  }
-
-  //Find WIFI Module NodeMCU & Display
-  display.clearDisplay();
-  Serial.println("AT+CWLAP");
+  // Set esp8266 to station mode and disconnect from any AP previously connected to
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
   delay(100);
-
-  if (Serial.find("ERROR")) {
-    setup();
-  }
-  else {
-    delay(200);
-
-    if (Serial.find("park_device1"))
-    {
-      display.println("1.Device1");
-    }
-    else {
-      display.println("1.Not find D1");
-    }
-
-    if (Serial.find("park_device2"))
-    {
-      display.println("2.Device2");
-    }
-    else {
-      display.println("2.Not find D2");
-    }
-
-    display.setTextColor(WHITE, BLACK); // 'inverted' text (배경 까맣게 글자 하얗게)
-    display.setTextSize(2);             //텍스트 사이즈 조절
-    display.setTextColor(BLACK);        //텍스트 색
-    display.display();                  //와이파이 내용 표시
-  }
 
   // initialize row pins as INPUT_PULLUP
   for (int i = 0; i < numRows; i++) {
     pinMode(pinRows[i], INPUT_PULLUP);
   }
 
+
   // initialize column pins as OUTPUT
   for (int j = 0; j < numCols; j++) {
     pinMode(pinCols[j], OUTPUT);
     digitalWrite(pinCols[j], HIGH);    // set initial output as HIGH
   }
+
+  display.begin();
+  display.setContrast(40);
+  //adjust for your display (if you see a black screen try lowering the value, if all white try increasing it. Max 127)
+
+  display.clearDisplay();
+  delay(2000);
+
+  display.clearDisplay();
+  display.setTextSize(0);
+  display.setTextColor(BLACK);
+
+  display.setCursor(0, 0);
+  display.println("ETRI REMOTE");
+  display.println("WiFi Scaning..");
+  display.display();
+  delay(2000);
+  display.clearDisplay();
+
+  int networksFound = WiFi.scanNetworks();
+  display.setCursor(0, 0);
+  display.println("--WiFi INDEX--");
+  for (int i = 0; i < networksFound; ++i)
+  {
+    if (WiFi.SSID(i).substring(0, 4) == "park") {
+      display.println(WiFi.SSID(i));
+    }
+  }
+
+  display.display();
 }
+void loop() {
+  HTTPClient http;
 
 
-void loop()
-{
-  // Check input
   for (int j = 0; j < numCols; j++) {
     digitalWrite(pinCols[j], LOW);    // set as LOW to check button press
     for (int i = 0; i < numRows; i++) {
@@ -112,43 +85,122 @@ void loop()
         Serial.print(i);
         Serial.print(", column=");
         Serial.println(j);
+
+
         if (i == 0 && j == 0) {
-          Serial.println("AT+CWJAP=\"park_device1\",\"123456789\""); // 0,0좌표 버튼 누르면 device1 연결
-          if (Serial.find("OK")) {
+          WiFi.mode(WIFI_STA);
+          WiFi.begin("park_device4", "");;
+          display.clearDisplay();
+          display.setCursor(0, 0);
+          display.println("now connecting device4");
+          display.display();
+          delay(15000);
+
+          if (WiFi.status() == WL_CONNECTED) {
             display.clearDisplay();             //디스플레이 지우기
             display.setTextSize(1);             //텍스트 사이즈 조절
             display.setTextColor(BLACK);        //텍스트 색
-            display.println("--Device1--");
-            display.println("1.ON");
-            display.println("2.OFF");
-            display.println("3.Back");
+            display.println(WiFi.SSID());
+            display.println("1.led");
+            display.println("2.led");
+            display.println("3.led");
+            display.println("4.led");
+            display.println("5.allOFF");
             display.display();
-            if (i == 0 && j == 0) {
-              Serial.println("AT+CIPSTART=\"TCP\",\"192.168.4.1/bt1\",80");
-              delay(1000);
-              Serial.println("AT+CIPSEND=4"); //  set date length which will be sent, such as 4 bytes requese
-            }
+            client.println("GET /hello ETRI HTTP/1.1");
+            client.println("Host: 192.168.4.1/bt1");
+            client.println("User-Agent: ArduinoWiFi/1.1");
+            client.println("Connection: close");
+            client.println();
+          }
+          else {
+            display.clearDisplay();
+            display.println("NOT CONNECTED");
+            display.display();
           }
         }
 
-        else if (i == 0 && j == 1) {
-          Serial.println("AT+CWJAP=\"park_device2\",\"123456789\"");
-          if (Serial.find("OK")) {
+
+        if (i == 0 && j == 1) {
+          WiFi.mode(WIFI_STA);
+          WiFi.begin("park_device3", "");
+
+          display.clearDisplay();
+          display.setCursor(0, 0);
+          display.println("now connecting device3");
+          display.display();
+          delay(15000);
+
+          if (WiFi.status() == WL_CONNECTED) {
             display.clearDisplay();             //디스플레이 지우기
             display.setTextSize(1);             //텍스트 사이즈 조절
             display.setTextColor(BLACK);        //텍스트 색
-            display.println("--Device2--");
-            display.println("1.ON");
-            display.println("2.OFF");
-            display.println("3.Back");
+            display.println(WiFi.SSID());
+            display.println("1.redup");
+            display.println("2.reddown");
+            display.display();
+          }
+          else {
+            display.clearDisplay();
+            display.println("NOT CONNECTED");
+            display.display();
+          }
+        }
+        if (i == 0 && j == 2) {
+          WiFi.mode(WIFI_STA);
+          WiFi.begin("park_device2", "");
+
+          display.clearDisplay();
+          display.setCursor(0, 0);
+          display.println("now connecting device2");
+          display.display();
+          delay(15000);
+
+          if (WiFi.status() == WL_CONNECTED) {
+            display.clearDisplay();             //디스플레이 지우기
+            display.setTextSize(1);             //텍스트 사이즈 조절
+            display.setTextColor(BLACK);        //텍스트 색
+            display.println(WiFi.SSID());
+            display.println("1.Beam Menu");
+            display.display();
+          }
+          else {
+            display.clearDisplay();
+            display.println("NOT CONNECTED");
+            display.display();
+          }
+
+        }
+        if (i == 0 && j == 3) {
+          WiFi.mode(WIFI_STA);
+          WiFi.begin("park_device1", "");
+
+          display.clearDisplay();
+          display.setCursor(0, 0);
+          display.println("now connecting device1");
+          display.display();
+          delay(15000);
+
+          if (WiFi.status() == WL_CONNECTED) {
+            display.clearDisplay();             //디스플레이 지우기
+            display.setTextSize(1);             //텍스트 사이즈 조절
+            display.setTextColor(BLACK);        //텍스트 색
+            display.println(WiFi.SSID());
+            display.println("1.Power");
+            display.display();
+          }
+          else {
+            display.clearDisplay();
+            display.println("NOT CONNECTED");
             display.display();
           }
         }
       }
     }
+
+
     digitalWrite(pinCols[j], HIGH);    // set as default (HIGH)
   }
   delay(500);
+
 }
-
-
